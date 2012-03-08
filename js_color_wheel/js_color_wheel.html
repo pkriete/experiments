@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<title>Javascript Color Wheel</title>
+	
+	<style type="text/css" media="screen">
+		html {
+			background: #000;
+		}
+		
+		body {
+			text-align: center;
+		}
+		
+		h1 {
+			font-family: Verdana;
+			font-weight: normal;
+			color: #fff;
+		}
+		
+		p {
+			font: 13px/22px Verdana;
+			color: #ccc;
+			width: 300px;
+			margin: 0 auto;
+		}
+	</style>
+</head>
+<body>
+	<h1>Javascript Color Wheel</h1>
+	
+	<canvas id="canvas" width="250" height="250"></canvas>
+	
+	<p>This started out as an experiment for one of those "&lt;smallnumber&gt; KB" competitions, so the code is a little thorny in places.</p>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript">
+
+
+var C_WIDTH = 250;
+var C_HEIGHT = 250;
+
+var RADIUS = 100;
+var VALUE = 100;
+
+var CENTER_X = C_WIDTH / 2;
+var CENTER_Y = C_HEIGHT / 2;
+
+
+var canvas = document.getElementById('canvas'),
+	ctx = canvas.getContext('2d');
+
+var test = 5;
+
+drawWheel(100);
+
+
+// with a base color selected, call this with a degree and radius offset to add a new color
+// no r, no offset
+// lets us easily add complementary, compound, etc
+function offset(d, r) {
+	// @todo
+}
+
+// hsv based - given a v, draw wheel
+function drawWheel(v) {
+	VALUE = v;
+	
+	// Image data and pixels
+	var i = ctx.getImageData(0, 0, C_WIDTH, C_HEIGHT),
+		p = i.data,
+		x = 0, y = 0, j = 0,
+		rgb;
+			
+	for (x = 0; x < C_WIDTH; x++) {
+		
+		for (y = 0; y < C_HEIGHT; y++) {
+
+			rgb = rgb_at_coords(x, y);
+			
+			p[j++] = rgb.r;
+			p[j++] = rgb.g;
+			p[j++] = rgb.b;
+			p[j++] = 255;
+		}
+	}
+	
+	// Draw the image
+	ctx.putImageData(i, 0, 0);
+	
+	// add a border to hide rough edges
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = "#000";
+	ctx.beginPath();
+	ctx.arc(CENTER_X, CENTER_Y, RADIUS, 0, Math.PI*2, true);
+	ctx.closePath();
+	ctx.stroke();
+}
+
+function rgb_at_coords(x, y) {
+	var hsv = hsv_at_coords(x, y);
+	return hsv_to_rgb(hsv.h, hsv.s, hsv.v);
+}
+
+function hsv_at_coords(x, y) {
+	var x_diff = x - CENTER_X,
+		y_diff = y - CENTER_Y;
+	
+	var h = 0,
+		s = 0,
+		v = VALUE;
+	
+	// figure out if we're in the circle
+	// by calculating the distance to the center
+	r = Math.sqrt( Math.pow(x_diff, 2) + Math.pow(y_diff, 2) );
+	
+	if (r < RADIUS) {
+		rad = Math.atan(y_diff / x_diff);
+		
+		h = rad * 180 / Math.PI;
+		s = r;
+		
+		if (x_diff < 0) {
+			h -= 180;
+		}
+		
+		if (h < 0) {
+			h += 360;
+		}
+	}
+	else {
+		v = 0;
+	}
+	
+	return {
+		'h': h,
+		's': s,
+		'v': v
+	};
+}
+
+
+function hsv_to_rgb(h, s, v) {
+	
+	s /= 100;
+	v /= 100;
+	
+	var rgb	= {},
+		chroma = s * v,
+		m	= v - chroma,
+		h1	= Math.floor(h / 60),
+		x	= chroma * (1 - Math.abs(h / 60 % 2 - 1)),
+		c_pos = (h1 % 5) ? Math.ceil(h1 / 2) : 0,	// 0 1 1 2 2 0
+		x_pos = (2 * ++h1 + 2) % 3;					// 1 0 2 1 0 2
+
+	$.each(['r', 'g', 'b'], function(i, v) {
+		var val = 0;
+		
+		if (i == c_pos || i == x_pos) {
+			val = (i == c_pos) ? chroma : x;
+		}
+
+		rgb[v] = (val + m) * 255;
+	});
+	
+	return rgb;
+};
+
+</script>
+	
+</body>
+</html>
