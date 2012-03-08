@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Language" content="en-us" />
+	<title>Test</title>
+
+	<style type="text/css" media="screen">
+		
+		html, body, h1, h2, h3, div, p {
+			margin:			0;
+			padding:		0;
+		}
+		
+		body {
+			font:				14px/1 "Trebuchet MS";
+			background:			#333;
+		}
+		
+		div {
+			height:				50%;
+			width:				99%;
+		}
+		
+		h1, p {
+			color:				#000;
+			text-align:			center;
+			font-weight:		normal;
+			margin:				18px;
+			text-shadow:		0 1px 0 #404040;
+		}
+		
+		h1 {
+			width:				960px;
+			margin:				18px auto;
+			text-align:			left;
+		}
+		
+		h1 a {
+			color:				#202020;
+			text-decoration:	none;
+			-webkit-transition: all 0.4s linear;
+		}
+		
+		h1 a:hover {
+			color:	inherit;
+		}
+		
+		p {
+			color:				#181818;
+			margin-bottom:		20px;
+			font-size:			13px;
+		}
+		
+		#room {
+			height:				600px;
+			margin:				20px auto;
+			overflow:			hidden;
+			position:			relative;
+			width:				960px;
+			
+			-webkit-box-shadow: 0 3px 25px #000;
+			-webkit-perspective: 800;
+		}
+		
+		#ceiling, #floor {
+			position:		absolute;
+			width:			100%;
+			z-index:		1;
+		}
+		
+		#ceiling {
+			background:		-webkit-gradient(linear, left top, left bottom, from(#ccc), to(#E2E1DC));
+		}
+		
+		#floor {
+			top:			28%;
+			height: 660px;
+			background:		-webkit-gradient(radial, 480 370, 50, 480 370, 160, from(rgba(100, 100, 100, 0.2)), to(rgba(100, 100, 100, 0))),
+							url(./assets/rubik_floor.jpg) repeat;
+			
+			-webkit-transform-origin: center;
+			-webkit-transform: rotateX(90deg);
+			
+		}
+		
+		#lwall, #rwall {
+			background:		blue;
+			height:			300px;
+			position:		absolute;
+		}
+		
+		#lwall {
+			background:		-webkit-gradient(linear, left top, right top, from(#E2DDCB), to(#EEEBD9));
+			
+			-webkit-transform-origin: right;
+			-webkit-transform: rotateY(90deg);
+		}
+		
+		#rwall {
+			background:		-webkit-gradient(linear, left top, right top, from(#EEEBD9), to(#E2DDCB));
+			
+			-webkit-transform-origin: left;
+			-webkit-transform: rotateY(-90deg);
+		}
+		
+		#bwall {
+			background-color:	rgb(226, 221, 203); /* #E2DDCB; */
+			/* Add some very subtle highlights */
+			background-image:	-webkit-gradient(radial, 340 150, 0, 335 160, 280, from(#EEEBD9), to(rgba(226, 221, 203, 0))),
+								-webkit-gradient(radial, 200 190, 0, 195 200, 250, from(#EEEBD9), to(rgba(226, 221, 203, 0))),
+								-webkit-gradient(radial, 100 80, 0, 115 90, 400, from(#EEEBD9), to(rgba(226, 221, 203, 0)));
+
+			height:		300px;
+			margin:		150px auto 0 auto;
+			width:		450px;
+		}
+		
+		.wall {
+			top: 150px;
+			width: 50%;
+			z-index: 1;
+		}
+		
+	</style>
+</head>
+<body>
+
+<h1>Rubik's Cube Room</h1>
+
+<div id="room">
+
+	<div id="ceiling"></div>
+	<div id="floor"></div>
+	
+	<div id="lwall" class="wall" style="left: -225px;"></div>
+	<div id="rwall" class="wall" style="left: 705px;"></div>
+
+	<div id="bwall" style="position: relative; z-index: 2"></div>
+
+</div>
+
+
+
+
+
+
+<style type="text/css" media="screen">
+	#experiment {
+		position: absolute;
+		top: 250px;
+		
+      -webkit-perspective: 800;
+      -webkit-perspective-origin: 50% 120px;
+    }
+
+    #cube {
+      position: relative;
+      margin: 0 auto;
+      height: 180px;
+      width: 180px;
+      -webkit-transition: -webkit-transform 2s linear;
+      -webkit-transform-style: preserve-3d;
+
+	  -webkit-transform: rotateY(40deg) rotateX(-250deg);
+    }
+
+    .face {
+      position: absolute;
+      height: 180px;
+      width: 180px;
+      background-color: rgba(50, 50, 50, 0.7);
+    }
+
+    #cube .one  {
+      -webkit-transform: rotateX(90deg) translateZ(90px);
+    }
+
+    #cube .two {
+      -webkit-transform: translateZ(90px);
+    }
+
+    #cube .three {
+      -webkit-transform: rotateY(90deg) translateZ(90px);
+    }
+
+    #cube .four {
+      -webkit-transform: rotateY(180deg) translateZ(90px);
+    }
+
+    #cube .five {
+      -webkit-transform: rotateY(-90deg) translateZ(90px);
+    }
+
+    #cube .six {
+      -webkit-transform: rotateX(-90deg) translateZ(90px) rotate(180deg);
+    }
+
+	#cube span {
+		display: block;
+		border: 1px solid black;
+		height: 58px;
+		width: 58px;
+		float: left;
+	}
+	
+	#cube .block {
+		position: absolute;
+		border: 1px solid black;
+		height: 58px;
+		width: 58px;
+	}
+	
+	#cube .green {
+		background: green;
+	}
+	
+	#cube .white {
+		background: white;
+	}
+	
+	#cube .red {
+		background: red;
+	}
+	
+	#cube .yellow {
+		background: yellow;
+	}
+	
+	#cube .blue {
+		background: blue;
+	}
+	
+	#cube .orange {
+		background: orange;
+	}
+	
+	#cube .green.center {
+		-webkit-transform: rotateY(-90deg) translateZ(30px) translateY(60px);
+	}
+	
+	#cube .white.center {
+		-webkit-transform: rotateZ(90deg) translateX(60px) translateY(-60px) translateZ(90px);
+	}
+	
+	#cube .red.center {
+		-webkit-transform: rotateX(-90deg) translateX(60px) translateY(0px) translateZ(-30px);
+	}
+	
+	#cube .yellow.center {
+		-webkit-transform: rotateZ(90deg) translateX(60px) translateY(-60px) translateZ(-90px);
+	}
+	
+	#cube .blue.center {
+		-webkit-transform: rotateY(-90deg) translateZ(-150px) translateY(60px);
+	}
+	
+	#cube .orange.center {
+		-webkit-transform: rotateX(-90deg) translateX(60px) translateY(0px) translateZ(150px);
+	}
+</style>
+
+
+<div id="experiment">
+        <div id="cube">
+                <div class="face one">
+					Face one
+                </div>
+                <div class="face two">
+					Face two
+                </div>
+                <div class="face three">
+					Lorem ipsum.
+                </div>
+                <div class="face four">
+                    Animate me!
+                </div>
+                <div class="face five">
+  					Fünf - füüüünf!
+                </div>
+                <div class="face six">
+					A SIX!
+                </div>
+
+				<div class="block green center">
+				</div>
+				
+				<div class="block white center">	
+				</div>
+				
+				<div class="block red center">	
+				</div>
+				
+				<div class="block yellow center">	
+				</div>
+				
+				<div class="block blue center">	
+				</div>
+				
+				<div class="block orange center">	
+				</div>
+        </div>
+</div>
+
+
+
+<p>
+	Adding more squares obscures the ones in the back, but if someone animated it ...
+</p>
+	
+</body>
+</html>
