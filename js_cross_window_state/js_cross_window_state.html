@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<title>State</title>
+	
+	<style type="text/css" media="screen">
+		body {
+			background: #f8f8f8;
+		}
+		
+		h1 {
+			color: #ccc;
+			text-shadow: 0 1px 0 #fff;
+		}
+		
+		button {
+			background: #333 -webkit-gradient(linear, 0 0, 0 100%, from(#444), to(#333));
+			border: 1px solid rgba(0, 0, 0, 0);
+			border-top: 1px solid #777;
+			color: #fff;
+			font: bold 14px/1 Helvetica;
+			padding: 5px 15px 6px 15px;
+
+			-webkit-box-shadow: 0 0 0 1px #333, 0 1px 0 1px #e8e8e8;
+		}
+		
+		button:active {
+			border: 1px solid #222;
+			background: #282828;
+			-webkit-box-shadow: 0 0 0 1px #222;
+		}
+		
+		p {
+			width: 400px;
+			font: 13px/20px Helvetica;
+			color: #888;
+		}
+		
+	</style>
+</head>
+<body>
+	<h1>No Value</h1>
+	<button>Random Value!</button>
+	
+	<p>
+		Open this file up in mutliple tabs/windows (same browser) and then click the
+		button a few times. The value should be the same everywhere.<br>
+		<em>ps. it toggles between no value and a random string</em>
+	</p>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+	/**
+	 * State.set('key', 'value' [, expiration]);
+	 * State.get('key', callback [, refresh_timer]);
+	 */
+
+
+	var State = (function($, window) {
+
+		var _hasLocalStorage = false, // guilty until proven innocent
+			_cache = {},
+			_callbacks = {};
+
+		// detect local storage
+		try {
+			_hasLocalStorage = ('localStorage' in window) && (window['localStorage'] !== null);
+
+			// In safari, private browsing results in an always-full store,
+			// so we'll try setting something and remove it again right away
+			// just to gauge if it's even worth attempting.
+
+			if (_hasLocalStorage) {
+				var t = (new Date()).getTime();
+				localStorage.setItem('state_'+t, 'y');
+				localStorage.removeItem('state_'+t);
+			}
+		} catch(e) {
+			_hasLocalStorage = false;
+		}
+
+
+		function _triggerChange(key, value) {
+			_cache[key] = value;
+
+			$.each(_callbacks[key], function(i, callback) {
+				callback(value);
+			});
+		}
+
+
+		function _readFromStorage(key) {
+			if (_hasLocalStorage) {
+				return localStorage.getItem(key);
+			}
+
+			var data = document.cookie.split(';'),
+				i = 0, l = data.length, c;
+
+			key += "=";
+
+			for ( ; i < l; i++) {
+				c = $.trim(data[i]);
+				if (c.indexOf(key) == 0) {
+					return c.substring(key.length, c.length);
+				}
+			}
+		}
+
+		function _writeToStorage(key, value) {
+			if (_hasLocalStorage) {
+				try {
+					localStorage.setItem(key, value);
+				} catch (e) {}
+			} else {
+				// @todo use a single cookie?
+				document.cookie = key+"="+value+"; path=/";
+			}
+		}
+
+		// if we don't have access to local storage, we'll
+		// fire the event when the page gains focus.
+		// @todo not perfect as things like completed ajax
+		// events in other tabs may change storage. Add an
+		// option for a timeout.
+		if ( ! _hasLocalStorage) {
+
+			$(window).focusin(function() {
+				var changed = {};
+
+				$.each(_cache, function(k, v) {
+					var newVal = _readFromStorage(k);
+
+					if (newVal !== v) {
+						changed[k] = newVal;
+					}
+				});
+
+				$.each(changed, _triggerChange);
+			});
+		}
+		else
+		{
+			$(window, document).bind('storage', function(evt) {
+				var key = evt.originalEvent['key'],
+					value;
+
+				if ( ! key) {
+					$.each(_cache, function(k, v) {
+						if (v != _readFromStorage(k)) {
+							key = k;
+							value = v;
+							return false;
+						}
+					});
+				} else {
+					value = _readFromStorage(key);
+				}
+
+				_triggerChange(key, value);
+			});
+		}
+
+		return {
+
+			set: function(key, value) {
+				_cache[key] = value;
+
+				_writeToStorage(key, value);
+
+				// @todo param to not call for current page?
+				_triggerChange(key, value);
+			},
+
+			get: function(key, callback) {
+
+				if ( ! (key in _cache)) {
+					_cache[key] = _readFromStorage(key);
+				}
+
+				if ( ! (key in _callbacks)) {
+					_callbacks[key] = [];				
+				}
+
+				_callbacks[key].push(callback);
+
+				// fire right away with current value?
+				_triggerChange(key, _cache[key]);
+			}
+		};
+
+	})(jQuery, this);
+</script>
+
+
+<script type="text/javascript">
+
+(function() {
+
+	var showing = false,
+		text = '',
+		possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+	State.get('xid', function(val) {
+		if (val) {
+			showing = true;
+			$('h1').text('Value: '+val);
+		} else {
+			showing = false;
+			$('h1').text('No Value');
+		}
+	});
+	
+	$('button').click(function() {
+		var newVal = '';
+		
+		if ( ! showing) {						
+			for(var i = 0; i < 5; i++) {
+				newVal += possible.charAt(Math.floor(Math.random() * possible.length));
+			}
+		}
+		
+		State.set('xid', newVal);
+	});
+	
+})();
+
+</script>
+	
+</body>
+</html>
