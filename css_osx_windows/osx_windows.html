@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style type="text/css" media="screen">
+		
+		body {
+			margin:								0;
+			padding:							0;
+			text-align:							center;
+			font:								13px/1 'Lucida Grande';
+		}
+
+		
+		.window {
+			border-top:							1px solid #e1e1e1;
+			height:								100px;
+			position:							absolute;
+			width:								200px;
+			
+			-webkit-border-top-left-radius:		5px;
+			-webkit-border-top-right-radius:	5px;
+			-webkit-box-shadow:					0 6px 14px #aaa;
+		}
+		
+		.active {
+			border-top:							1px solid #cbcbcb;
+			-webkit-box-shadow:					0 8px 30px #919191;
+		}
+		
+		.content {
+			padding:							10px;
+		}
+		
+		.header {
+			cursor: default;
+			
+			background:							-webkit-gradient(linear, left top, left bottom, from(#ededed), to(#d9d9d9));
+			border-top:							1px solid #f4f4f4;
+			
+			border-bottom:						1px solid #999;
+			color:								#666;
+			
+			padding:							3px 0 4px 0;
+			text-shadow:						0 1px 0 #eaeaea;
+			
+			-webkit-border-top-left-radius:		5px;
+			-webkit-border-top-right-radius:	5px;
+		}
+		
+		.active .header {
+			color:								#000;
+			border-top:							1px solid #e2e2e2;
+			border-bottom:						1px solid #515151;
+			background:							-webkit-gradient(linear, left top, left bottom, from(#cfcfcf), to(#a8a8a8));
+			text-shadow:						0 1px 0 #cfcfcf;
+		}
+		
+		[draggable=true] {
+		  -khtml-user-drag: element;
+		}
+		
+	</style>
+</head>
+<body>
+
+<div class="window" style="top: 500px; left: 700px;">
+	<div class="header">Title</div>
+	<div class="content">
+		This is a window or something.
+	</div>
+</div>
+
+<div class="window active" style="top: 200px; left: 40px;" draggable="true">
+	<div class="header">Woot!</div>
+	<div class="content">
+		Just having fun here.
+	</div>
+</div>
+
+<div class="window" style="top: 15px; left: 240px;">
+	<div class="header">Make it better!</div>
+	<div class="content">
+		Draggable would be nice ...
+	</div>
+</div>
+
+<div class="window" style="top: 400px; left: 300px;">
+	<div class="header">Title</div>
+	<div class="content">
+		This is a window or something.
+	</div>
+</div>
+
+<div class="window" style="top: 180px; left: 600px;">
+	<div class="header">Title</div>
+	<div class="content">
+		This is a window or something.
+	</div>
+</div>
+
+
+<script type="text/javascript" charset="utf-8">
+	
+	// Selector helper - QSA to node array
+	function $(selector, root) {
+		root = root || document;
+		return [].slice.apply(root.querySelectorAll(selector));
+	}
+	
+	// Event handler helper
+	Array.prototype.observe = function(evt, callback) {
+		return this.forEach(function(el) {
+			el.addEventListener(evt, callback, false);
+		});
+	}
+	
+	
+	$('.window').observe('mousedown', function() {
+		$('.window').forEach(function(el) { el.className = 'window'});
+		this.className = 'window active';
+	});
+	
+	$('.window').observe('dragstart', function(evt) {
+		evt.dataTransfer.setData('Text', target.id);
+		event.dataTransfer.setDragImage(this, -10, -10);
+		return false;
+	});
+	
+</script>
+
+</body>
+</html>
